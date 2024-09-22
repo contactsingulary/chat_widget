@@ -1,6 +1,9 @@
 (function() {
   // Styles
   const styles = `
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+    @import url('https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css');
+
     :root {
       --widget-button-color: #0070f3;
       --widget-icon-color: #f2f2f2;
@@ -364,7 +367,9 @@
         event.stopPropagation();
         const searchWidget = document.querySelector('gen-search-widget');
         if (searchWidget) {
-          searchWidget.setAttribute('open', 'true');
+          // Dispatch a custom event to open the search widget
+          const openEvent = new CustomEvent('open-search-widget');
+          searchWidget.dispatchEvent(openEvent);
         }
       });
     }
@@ -454,25 +459,12 @@
     buttonsCollapsed = false;
   }
 
-  // Load external resources
-  const fontAwesomeLink = document.createElement('link');
-  fontAwesomeLink.rel = 'stylesheet';
-  fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css';
-  document.head.appendChild(fontAwesomeLink);
-
-  const dfMessengerStyleLink = document.createElement('link');
-  dfMessengerStyleLink.rel = 'stylesheet';
-  dfMessengerStyleLink.href = 'https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css';
-  document.head.appendChild(dfMessengerStyleLink);
-
+  // Load Dialogflow Messenger script
   const dfMessengerScript = document.createElement('script');
   dfMessengerScript.src = 'https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js';
   document.body.appendChild(dfMessengerScript);
 
-  const jqueryScript = document.createElement('script');
-  jqueryScript.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js';
-  document.body.appendChild(jqueryScript);
-
+  // Load Gen App Builder script
   const genAppBuilderScript = document.createElement('script');
   genAppBuilderScript.src = 'https://cloud.google.com/ai/gen-app-builder/client?hl=en_US';
   document.body.appendChild(genAppBuilderScript);
