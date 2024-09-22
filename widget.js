@@ -356,40 +356,45 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    const dfMessenger = document.querySelector('df-messenger');
+  function initializeSearchButton() {
     const searchButton = document.getElementById('searchWidgetTrigger');
-    
-    function openChatbot(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      dfMessenger.setAttribute('expand', 'true');
-    }
-
-    function triggerSearch(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      const searchWidget = document.querySelector('gen-search-widget');
-      if (searchWidget) {
-        searchWidget.setAttribute('open', 'true');
-      }
-    }
-
     if (searchButton) {
-      searchButton.addEventListener('click', triggerSearch);
+      searchButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const searchWidget = document.querySelector('gen-search-widget');
+        if (searchWidget) {
+          searchWidget.setAttribute('open', 'true');
+        }
+      });
     }
+  }
 
+  function initializeChatPopupListeners() {
     chatPopupContainer.addEventListener('click', function(event) {
       const popup = event.target.closest('.chat-popup');
       if (popup) {
         if (event.target.closest('.social-icons a')) {
           return;
         }
-        openChatbot(event);
+        const dfMessenger = document.querySelector('df-messenger');
+        if (dfMessenger) {
+          dfMessenger.setAttribute('expand', 'true');
+        }
       }
     });
+  }
 
+  // Warten auf das vollständige Laden des DOMs
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeSearchButton();
+    initializeChatPopupListeners();
     showChatPopup('👋 Willkommen! Wie kann ich Ihnen helfen?', 5000);
+  });
+
+  // Warten auf das Laden des gen-search-widget
+  window.addEventListener('load', function() {
+    initializeSearchButton();
   });
 
   window.addEventListener('scroll', function() {
