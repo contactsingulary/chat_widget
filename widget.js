@@ -96,22 +96,9 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
     }
 
-    df-messenger::part(chat-bubble) {
-      width: 56px !important;
-      height: 56px !important;
-      background-color: var(--widget-button-color) !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    df-messenger:hover::part(chat-bubble) {
+    df-messenger::part(chat-bubble):hover {
       background-color: var(--widget-button-hover-color) !important;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    df-messenger:hover {
-      --df-messenger-chat-bubble-background: var(--widget-button-hover-color);
-      --df-messenger-chat-bubble-icon-color: var(--widget-icon-color);
     }
 
     df-messenger {
@@ -273,11 +260,6 @@
   buttonStackArea.className = 'button-stack-area';
   document.body.appendChild(buttonStackArea);
 
-  const searchWidget = document.createElement('gen-search-widget');
-  searchWidget.setAttribute('configId', '7059425d-0df0-429c-846a-86f698dc4fde');
-  searchWidget.setAttribute('triggerId', 'searchWidgetTrigger');
-  document.body.appendChild(searchWidget);
-
   const dfMessenger = document.createElement('df-messenger');
   dfMessenger.setAttribute('intent', 'WELCOME');
   dfMessenger.setAttribute('chat-title', 'GoostGPT');
@@ -373,8 +355,7 @@
     }
   }
 
-  function init
-ializeChatPopupListeners() {
+  function initializeChatPopupListeners() {
     chatPopupContainer.addEventListener('click', function(event) {
       const popup = event.target.closest('.chat-popup');
       if (popup) {
@@ -389,16 +370,22 @@ ializeChatPopupListeners() {
     });
   }
 
-  // Warten auf das vollständige Laden des DOMs
+  // Wait for DOM to be fully loaded
   document.addEventListener('DOMContentLoaded', function() {
     initializeSearchButton();
     initializeChatPopupListeners();
     showChatPopup('👋 Willkommen! Wie kann ich Ihnen helfen?', 5000);
   });
 
-  // Warten auf das Laden des gen-search-widget
+  // Wait for the window to fully load
   window.addEventListener('load', function() {
     initializeSearchButton();
+    
+    // Create and append the search widget
+    const searchWidget = document.createElement('gen-search-widget');
+    searchWidget.setAttribute('configId', '7059425d-0df0-429c-846a-86f698dc4fde');
+    searchWidget.setAttribute('triggerId', 'searchWidgetTrigger');
+    document.body.appendChild(searchWidget);
   });
 
   window.addEventListener('scroll', function() {
