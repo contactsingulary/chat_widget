@@ -367,15 +367,14 @@
         event.stopPropagation();
         const searchWidget = document.querySelector('gen-search-widget');
         if (searchWidget) {
-          // Dispatch a custom event to open the search widget
-          const openEvent = new CustomEvent('open-search-widget');
-          searchWidget.dispatchEvent(openEvent);
+          searchWidget.setAttribute('open', '');
         }
       });
     }
   }
 
-  function initializeChatPopupListeners() {
+  function init
+ializeChatPopupListeners() {
     chatPopupContainer.addEventListener('click', function(event) {
       const popup = event.target.closest('.chat-popup');
       if (popup) {
@@ -459,7 +458,17 @@
     buttonsCollapsed = false;
   }
 
-  // Load Dialogflow Messenger script
+  // Load external resources
+  const fontAwesomeLink = document.createElement('link');
+  fontAwesomeLink.rel = 'stylesheet';
+  fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css';
+  document.head.appendChild(fontAwesomeLink);
+
+  const dfMessengerStyleLink = document.createElement('link');
+  dfMessengerStyleLink.rel = 'stylesheet';
+  dfMessengerStyleLink.href = 'https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css';
+  document.head.appendChild(dfMessengerStyleLink);
+
   const dfMessengerScript = document.createElement('script');
   dfMessengerScript.src = 'https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js';
   document.body.appendChild(dfMessengerScript);
