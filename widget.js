@@ -1,32 +1,6 @@
-// Load external CSS and JavaScript resources
-function loadExternalResource(type, url) {
-  return new Promise((resolve, reject) => {
-    let element;
-    if (type === 'css') {
-      element = document.createElement('link');
-      element.rel = 'stylesheet';
-      element.href = url;
-    } else if (type === 'js') {
-      element = document.createElement('script');
-      element.src = url;
-    }
-
-    element.onload = resolve;
-    element.onerror = reject;
-    document.head.appendChild(element);
-  });
-}
-
-Promise.all([
-  loadExternalResource('css', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'),
-  loadExternalResource('css', 'https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css'),
-  loadExternalResource('js', 'https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js'),
-  loadExternalResource('js', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'),
-  loadExternalResource('js', 'https://cloud.google.com/ai/gen-app-builder/client?hl=en_US')
-]).then(() => {
-  // Inject CSS styling
-  const style = document.createElement('style');
-  style.innerHTML = `
+(function() {
+  // Styles
+  const styles = `
     :root {
       --widget-button-color: #0070f3;
       --widget-icon-color: #f2f2f2;
@@ -58,6 +32,7 @@ Promise.all([
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.5s ease, opacity 0.5s ease;
+      position: relative;
     }
 
     .widget-button i {
@@ -78,6 +53,15 @@ Promise.all([
       transform: scale(0);
     }
 
+    .button-stack-area {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 300px;
+      height: 200px;
+      z-index: 997;
+    }
+
     df-messenger {
       --df-messenger-bot-message: var(--widget-button-color);
       --df-messenger-button-titlebar-color: var(--widget-button-color);
@@ -87,6 +71,66 @@ Promise.all([
       --df-messenger-user-message: #5a0f0f;
       --df-messenger-fab-color: var(--widget-button-color);
       --df-messenger-fab-icon-color: var(--widget-icon-color);
+      --df-messenger-chat-bubble-size: 48px;
+      --df-messenger-chat-bubble-background: var(--widget-button-color);
+      --df-messenger-chat-bubble-icon-color: var(--widget-icon-color);
+      --df-messenger-chat-bubble-border-radius: 50%;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    df-messenger {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 1000;
+    }
+
+    df-messenger::part(chat-bubble) {
+      width: 56px !important;
+      height: 56px !important;
+      background-color: var(--widget-button-color) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    df-messenger::part(chat-bubble) {
+      width: 56px !important;
+      height: 56px !important;
+      background-color: var(--widget-button-color) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    df-messenger:hover::part(chat-bubble) {
+      background-color: var(--widget-button-hover-color) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    df-messenger:hover {
+      --df-messenger-chat-bubble-background: var(--widget-button-hover-color);
+      --df-messenger-chat-bubble-icon-color: var(--widget-icon-color);
+    }
+
+    df-messenger {
+      --df-messenger-primary-color: var(--widget-button-color);
+      --df-messenger-titlebar-background: #ffffff;
+      --df-messenger-font-color: #333333;
+      --df-messenger-message-bot-background: #f2f2f2;
+      --df-messenger-message-user-background: var(--widget-button-color);
+      --df-messenger-message-user-font-color: var(--widget-icon-color);
+      --df-messenger-chat-background: #ffffff;
+      --df-messenger-input-background: #ffffff;
+      --df-messenger-send-icon-color: var(--widget-button-color);
+      --df-messenger-chat-scroll-button-background: var(--widget-button-color);
+      --df-messenger-chat-scroll-button-font-color: var(--widget-icon-color);
+      --df-messenger-input-box-focus-border: 2px solid var(--widget-button-color);
+      --df-messenger-chat-window-height: 650px;
+      --df-messenger-chat-window-width: 400px;
+      --df-messenger-chat-border-radius: 2px;
+    }
+
+    df-messenger::part(input-wrapper:focus-within) {
+      border-color: var(--widget-button-color) !important;
     }
 
     .chat-popup-container {
@@ -122,6 +166,32 @@ Promise.all([
       margin-bottom: -26px;
     }
 
+    .chat-popup:first-child {
+      margin-bottom: 0;
+    }
+
+    .chat-popup::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      right: 20px;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 8px solid #f2f2f2;
+      transition: border-top-color 0.3s ease;
+    }
+
+    .chat-popup:hover {
+      background-color: #e0e0e0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .chat-popup:hover::after {
+      border-top-color: #e0e0e0;
+    }
+
     .chat-popup.show {
       opacity: 1;
       transform: translateY(0);
@@ -131,49 +201,98 @@ Promise.all([
       opacity: 0;
       transform: translateY(10px);
     }
+
+    .social-icons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 5px;
+    }
+
+    .social-icons a {
+      color: var(--widget-button-color);
+      font-size: 18px;
+      transition: color 0.3s ease, filter 0.3s ease;
+    }
+
+    .social-icons a:hover {
+      color: var(--widget-button-hover-color);
+      filter: brightness(1.5);
+    }
+
+    .grecaptcha-badge {
+      visibility: hidden;
+    }
+
+    .recaptcha-text {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .recaptcha-text a {
+      color: var(--widget-button-color);
+      text-decoration: none;
+    }
+
+    .recaptcha-text a:hover {
+      text-decoration: underline;
+    }
   `;
-  document.head.appendChild(style);
 
-  // Inject HTML structure
-  const widgetContainer = document.createElement('div');
-  widgetContainer.innerHTML = `
-    <!-- Container für Chat-Popups -->
-    <div class="chat-popup-container" id="chatPopupContainer"></div>
+  // Create style element
+  const styleElement = document.createElement('style');
+  styleElement.textContent = styles;
+  document.head.appendChild(styleElement);
 
-    <!-- Widget Buttons -->
-    <div class="widget-buttons">
-      <button class="widget-button" id="searchWidgetTrigger">
-        <i class="fas fa-search"></i>
-      </button>
-      <button class="widget-button" onclick="window.location.href='tel:+491234567890';">
-        <i class="fas fa-phone"></i>
-      </button>
-      <button class="widget-button" onclick="window.location.href='mailto:info@goost-immobilien.de';">
-        <i class="fas fa-envelope"></i>
-      </button>
-    </div>
+  // Create and append elements
+  const chatPopupContainer = document.createElement('div');
+  chatPopupContainer.id = 'chatPopupContainer';
+  chatPopupContainer.className = 'chat-popup-container';
+  document.body.appendChild(chatPopupContainer);
 
-    <!-- Dialogflow Messenger -->
-    <df-messenger
-      intent="WELCOME"
-      chat-title="GoostGPT"
-      agent-id="0a296a3b-f2ab-49f9-b07d-aae7f98e6618"
-      language-code="de">
-    </df-messenger>
-
-    <!-- reCAPTCHA text -->
-    <div class="recaptcha-text">
-      This site is protected by reCAPTCHA and the Google
-      <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
-      <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
-    </div>
+  const widgetButtons = document.createElement('div');
+  widgetButtons.className = 'widget-buttons';
+  widgetButtons.innerHTML = `
+    <button class="widget-button" id="searchWidgetTrigger">
+      <i class="fas fa-search"></i>
+    </button>
+    <button class="widget-button" onclick="window.location.href='tel:+491234567890';">
+      <i class="fas fa-phone"></i>
+    </button>
+    <button class="widget-button" onclick="window.location.href='mailto:info@goost-immobilien.de';">
+      <i class="fas fa-envelope"></i>
+    </button>
   `;
-  document.body.appendChild(widgetContainer);
+  document.body.appendChild(widgetButtons);
 
-  // Full JS functionality including popups and button behavior
+  const buttonStackArea = document.createElement('div');
+  buttonStackArea.className = 'button-stack-area';
+  document.body.appendChild(buttonStackArea);
+
+  const searchWidget = document.createElement('gen-search-widget');
+  searchWidget.setAttribute('configId', '7059425d-0df0-429c-846a-86f698dc4fde');
+  searchWidget.setAttribute('triggerId', 'searchWidgetTrigger');
+  document.body.appendChild(searchWidget);
+
+  const dfMessenger = document.createElement('df-messenger');
+  dfMessenger.setAttribute('intent', 'WELCOME');
+  dfMessenger.setAttribute('chat-title', 'GoostGPT');
+  dfMessenger.setAttribute('agent-id', '0a296a3b-f2ab-49f9-b07d-aae7f98e6618');
+  dfMessenger.setAttribute('language-code', 'de');
+  document.body.appendChild(dfMessenger);
+
+  const recaptchaText = document.createElement('div');
+  recaptchaText.className = 'recaptcha-text';
+  recaptchaText.innerHTML = `
+    This site is protected by reCAPTCHA and the Google
+    <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
+    <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+  `;
+  document.body.appendChild(recaptchaText);
+
+  // Script logic
   let lastScrollTop = 0;
-  const widgetButtons = document.querySelector('.widget-buttons');
-  const chatPopupContainer = document.getElementById('chatPopupContainer');
   let buttonsCollapsed = false;
   let collapseTimeout;
   let shownPopups = new Set();
@@ -209,11 +328,20 @@ Promise.all([
       }
     });
 
-    setTimeout(() => popup.classList.add('show'), 100);
+    setTimeout(() => {
+      popup.classList.add('show');
+    }, 100);
+
     setTimeout(() => {
       popup.classList.remove('show');
       popup.classList.add('hide');
-      setTimeout(() => chatPopupContainer.removeChild(popup), 300);
+      setTimeout(() => {
+        chatPopupContainer.removeChild(popup);
+        const remainingPopups = chatPopupContainer.querySelectorAll('.chat-popup');
+        remainingPopups.forEach((remainingPopup, index) => {
+          remainingPopup.style.transform = `translateY(-${index * 100}%)`;
+        });
+      }, 300);
     }, duration);
 
     if (shownPopups.size === 2) {
@@ -231,7 +359,7 @@ Promise.all([
   document.addEventListener('DOMContentLoaded', function() {
     const dfMessenger = document.querySelector('df-messenger');
     const searchButton = document.getElementById('searchWidgetTrigger');
-
+    
     function openChatbot(event) {
       event.preventDefault();
       event.stopPropagation();
@@ -278,8 +406,8 @@ Promise.all([
     }
     lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 
-    if (maxScrollReached > 1300 && !shownPopups.has('🔎 Haben Sie noch offene Fragen?')) {
-      showChatPopup('🔎 Haben Sie noch offene Fragen?', 5000);
+    if (maxScrollReached > 1300 && !shownPopups.has('🔎 Haben Sie gefunden was Sie suchen?')) {
+      showChatPopup('🔎 Haben Sie gefunden was Sie suchen?', 5000);
     }
 
     if (scrollPercentage > 90 && !shownPopups.has('Besuchen Sie uns gerne auf Social Media!')) {
@@ -290,16 +418,6 @@ Promise.all([
   });
 
   setInterval(checkForFourthBubble, 1000);
-
-  function collapseButtons() {
-    widgetButtons.classList.add('collapsed');
-    buttonsCollapsed = true;
-  }
-
-  function expandButtons() {
-    widgetButtons.classList.remove('collapsed');
-    buttonsCollapsed = false;
-  }
 
   buttonStackArea.addEventListener('mouseenter', expandButtons);
 
@@ -320,6 +438,37 @@ Promise.all([
       }
     }
   });
-}).catch(error => {
-  console.error("Error loading external resources:", error);
-});
+
+  function collapseButtons() {
+    widgetButtons.classList.add('collapsed');
+    buttonsCollapsed = true;
+  }
+
+  function expandButtons() {
+    widgetButtons.classList.remove('collapsed');
+    buttonsCollapsed = false;
+  }
+
+  // Load external resources
+  const fontAwesomeLink = document.createElement('link');
+  fontAwesomeLink.rel = 'stylesheet';
+  fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css';
+  document.head.appendChild(fontAwesomeLink);
+
+  const dfMessengerStyleLink = document.createElement('link');
+  dfMessengerStyleLink.rel = 'stylesheet';
+  dfMessengerStyleLink.href = 'https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css';
+  document.head.appendChild(dfMessengerStyleLink);
+
+  const dfMessengerScript = document.createElement('script');
+  dfMessengerScript.src = 'https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js';
+  document.body.appendChild(dfMessengerScript);
+
+  const jqueryScript = document.createElement('script');
+  jqueryScript.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js';
+  document.body.appendChild(jqueryScript);
+
+  const genAppBuilderScript = document.createElement('script');
+  genAppBuilderScript.src = 'https://cloud.google.com/ai/gen-app-builder/client?hl=en_US';
+  document.body.appendChild(genAppBuilderScript);
+})();
