@@ -163,6 +163,66 @@
     .recaptcha-text a:hover {
       text-decoration: underline;
     }
+
+    df-messenger {
+      --df-messenger-bot-message: var(--widget-button-color);
+      --df-messenger-button-titlebar-color: var(--widget-button-color);
+      --df-messenger-chat-background-color: #fafafa;
+      --df-messenger-font-color: #000000;
+      --df-messenger-send-icon: var(--widget-button-color);
+      --df-messenger-user-message: #5a0f0f;
+      --df-messenger-fab-color: var(--widget-button-color);
+      --df-messenger-fab-icon-color: var(--widget-icon-color);
+      --df-messenger-chat-bubble-size: 48px;
+      --df-messenger-chat-bubble-background: var(--widget-button-color);
+      --df-messenger-chat-bubble-icon-color: var(--widget-icon-color);
+      --df-messenger-chat-bubble-border-radius: 50%;
+      --df-messenger-card-background: #f5f5f5;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    df-messenger {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 1000;
+    }
+
+    df-messenger::part(chat-bubble) {
+      width: 56px !important;
+      height: 56px !important;
+      background-color: var(--widget-button-color) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    df-messenger:hover::part(chat-bubble) {
+      background-color: var(--widget-button-hover-color) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    df-messenger {
+      --df-messenger-primary-color: var(--widget-button-color);
+      --df-messenger-titlebar-background: #ffffff;
+      --df-messenger-font-color: #333333;
+      --df-messenger-message-bot-background: #f2f2f2;
+      --df-messenger-message-user-background: var(--widget-button-color);
+      --df-messenger-message-user-font-color: var(--widget-icon-color);
+      --df-messenger-chat-background: #ffffff;
+      --df-messenger-input-background: #ffffff;
+      --df-messenger-send-icon-color: var(--widget-button-color);
+      --df-messenger-chat-scroll-button-background: var(--widget-button-color);
+      --df-messenger-chat-scroll-button-font-color: var(--widget-icon-color);
+      --df-messenger-input-box-focus-border: 2px solid var(--widget-button-color);
+      --df-messenger-chat-window-height: 650px;
+      --df-messenger-chat-window-width: 400px;
+      --df-messenger-chat-border-radius: 2px;
+    }
+
+    df-messenger::part(input-wrapper:focus-within) {
+      border-color: var(--widget-button-color) !important;
+    }
   `;
 
   // Create and append style element
@@ -316,6 +376,7 @@
         if (event.target.closest('.social-icons a')) {
           return;
         }
+        
         openChatbot(event);
       }
     });
@@ -386,7 +447,6 @@
   document.body.appendChild(dfMessengerScript);
 
   // Load Gen App Builder script
-  
   const genAppBuilderScript = document.createElement('script');
   genAppBuilderScript.src = 'https://cloud.google.com/ai/gen-app-builder/client?hl=en_US';
   document.body.appendChild(genAppBuilderScript);
