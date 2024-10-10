@@ -1,9 +1,6 @@
 (function() {
   // Styles
   const styles = `
-    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
-    @import url('https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css');
-
     :root {
       --widget-button-color: #0070f3;
       --widget-icon-color: #f2f2f2;
@@ -63,64 +60,6 @@
       width: 300px;
       height: 200px;
       z-index: 997;
-    }
-
-    df-messenger {
-      --df-messenger-bot-message: var(--widget-button-color);
-      --df-messenger-button-titlebar-color: var(--widget-button-color);
-      --df-messenger-chat-background-color: #fafafa;
-      --df-messenger-font-color: #000000;
-      --df-messenger-send-icon: var(--widget-button-color);
-      --df-messenger-user-message: #5a0f0f;
-      --df-messenger-fab-color: var(--widget-button-color);
-      --df-messenger-fab-icon-color: var(--widget-icon-color);
-      --df-messenger-chat-bubble-size: 48px;
-      --df-messenger-chat-bubble-background: var(--widget-button-color);
-      --df-messenger-chat-bubble-icon-color: var(--widget-icon-color);
-      --df-messenger-chat-bubble-border-radius: 50%;
-      z-index: 1000;
-      transition: all 0.3s ease;
-    }
-
-    df-messenger {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      z-index: 1000;
-    }
-
-    df-messenger::part(chat-bubble) {
-      width: 56px !important;
-      height: 56px !important;
-      background-color: var(--widget-button-color) !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-    }
-
-    df-messenger::part(chat-bubble):hover {
-      background-color: var(--widget-button-hover-color) !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    df-messenger {
-      --df-messenger-primary-color: var(--widget-button-color);
-      --df-messenger-titlebar-background: #ffffff;
-      --df-messenger-font-color: #333333;
-      --df-messenger-message-bot-background: #f2f2f2;
-      --df-messenger-message-user-background: var(--widget-button-color);
-      --df-messenger-message-user-font-color: var(--widget-icon-color);
-      --df-messenger-chat-background: #ffffff;
-      --df-messenger-input-background: #ffffff;
-      --df-messenger-send-icon-color: var(--widget-button-color);
-      --df-messenger-chat-scroll-button-background: var(--widget-button-color);
-      --df-messenger-chat-scroll-button-font-color: var(--widget-icon-color);
-      --df-messenger-input-box-focus-border: 2px solid var(--widget-button-color);
-      --df-messenger-chat-window-height: 650px;
-      --df-messenger-chat-window-width: 400px;
-      --df-messenger-chat-border-radius: 2px;
-    }
-
-    df-messenger::part(input-wrapper:focus-within) {
-      border-color: var(--widget-button-color) !important;
     }
 
     .chat-popup-container {
@@ -209,10 +148,6 @@
       filter: brightness(1.5);
     }
 
-    .grecaptcha-badge {
-      visibility: hidden;
-    }
-
     .recaptcha-text {
       font-size: 12px;
       color: #666;
@@ -230,7 +165,7 @@
     }
   `;
 
-  // Create style element
+  // Create and append style element
   const styleElement = document.createElement('style');
   styleElement.textContent = styles;
   document.head.appendChild(styleElement);
@@ -341,51 +276,51 @@
     }
   }
 
-  function initializeSearchButton() {
-    const searchButton = document.getElementById('searchWidgetTrigger');
-    if (searchButton) {
-      searchButton.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        const searchWidget = document.querySelector('gen-search-widget');
-        if (searchWidget) {
-          searchWidget.setAttribute('open', '');
-        }
-      });
-    }
+  function collapseButtons() {
+    widgetButtons.classList.add('collapsed');
+    buttonsCollapsed = true;
   }
 
-  function initializeChatPopupListeners() {
+  function expandButtons() {
+    widgetButtons.classList.remove('collapsed');
+    buttonsCollapsed = false;
+  }
+
+  // Event listeners
+  document.addEventListener('DOMContentLoaded', function() {
+    const dfMessenger = document.querySelector('df-messenger');
+    const searchButton = document.getElementById('searchWidgetTrigger');
+    
+    function openChatbot(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      dfMessenger.setAttribute('expand', 'true');
+    }
+
+    function triggerSearch(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      const searchWidget = document.querySelector('gen-search-widget');
+      if (searchWidget) {
+        searchWidget.setAttribute('open', 'true');
+      }
+    }
+
+    if (searchButton) {
+      searchButton.addEventListener('click', triggerSearch);
+    }
+
     chatPopupContainer.addEventListener('click', function(event) {
       const popup = event.target.closest('.chat-popup');
       if (popup) {
         if (event.target.closest('.social-icons a')) {
           return;
         }
-        const dfMessenger = document.querySelector('df-messenger');
-        if (dfMessenger) {
-          dfMessenger.setAttribute('expand', 'true');
-        }
+        openChatbot(event);
       }
     });
-  }
 
-  // Wait for DOM to be fully loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    initializeSearchButton();
-    initializeChatPopupListeners();
     showChatPopup('👋 Willkommen! Wie kann ich Ihnen helfen?', 5000);
-  });
-
-  // Wait for the window to fully load
-  window.addEventListener('load', function() {
-    initializeSearchButton();
-    
-    // Create and append the search widget
-    const searchWidget = document.createElement('gen-search-widget');
-    searchWidget.setAttribute('configId', '7059425d-0df0-429c-846a-86f698dc4fde');
-    searchWidget.setAttribute('triggerId', 'searchWidgetTrigger');
-    document.body.appendChild(searchWidget);
   });
 
   window.addEventListener('scroll', function() {
@@ -402,8 +337,8 @@
     }
     lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 
-    if (maxScrollReached > 1300 && !shownPopups.has('🔎 Haben Sie gefunden was Sie suchen?')) {
-      showChatPopup('🔎 Haben Sie gefunden was Sie suchen?', 5000);
+    if (maxScrollReached > 1300 && !shownPopups.has('🔎 Haben Sie noch offene Fragen?')) {
+      showChatPopup('🔎 Haben Sie noch offene Fragen?', 5000);
     }
 
     if (scrollPercentage > 90 && !shownPopups.has('Besuchen Sie uns gerne auf Social Media!')) {
@@ -435,16 +370,6 @@
     }
   });
 
-  function collapseButtons() {
-    widgetButtons.classList.add('collapsed');
-    buttonsCollapsed = true;
-  }
-
-  function expandButtons() {
-    widgetButtons.classList.remove('collapsed');
-    buttonsCollapsed = false;
-  }
-
   // Load external resources
   const fontAwesomeLink = document.createElement('link');
   fontAwesomeLink.rel = 'stylesheet';
@@ -461,7 +386,14 @@
   document.body.appendChild(dfMessengerScript);
 
   // Load Gen App Builder script
+  
   const genAppBuilderScript = document.createElement('script');
   genAppBuilderScript.src = 'https://cloud.google.com/ai/gen-app-builder/client?hl=en_US';
   document.body.appendChild(genAppBuilderScript);
+
+  // Create and append the search widget
+  const searchWidget = document.createElement('gen-search-widget');
+  searchWidget.setAttribute('configId', '7059425d-0df0-429c-846a-86f698dc4fde');
+  searchWidget.setAttribute('triggerId', 'searchWidgetTrigger');
+  document.body.appendChild(searchWidget);
 })();
