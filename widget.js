@@ -148,11 +148,23 @@
       filter: brightness(1.5);
     }
 
+    /* Hide reCAPTCHA badge */
+    .grecaptcha-badge {
+      visibility: hidden !important;
+    }
+
     .recaptcha-text {
       font-size: 12px;
       color: #666;
       text-align: center;
       margin-top: 10px;
+      position: fixed;
+      bottom: 5px;
+      right: 5px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 5px;
+      border-radius: 5px;
+      z-index: 1000;
     }
 
     .recaptcha-text a {
@@ -370,13 +382,14 @@
       searchButton.addEventListener('click', triggerSearch);
     }
 
+    
+
     chatPopupContainer.addEventListener('click', function(event) {
       const popup = event.target.closest('.chat-popup');
       if (popup) {
         if (event.target.closest('.social-icons a')) {
           return;
         }
-        
         openChatbot(event);
       }
     });
